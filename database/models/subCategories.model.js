@@ -15,8 +15,10 @@ const subCategoriesSchema = mongoose.Schema({
   categoryId:{
     type:Schema.ObjectId,
     ref:'category'
-  }
-});
+  },
+},
+{ timestamps: true,}
+);
 
 
 export const subCategoriesModel = model('subCategory',subCategoriesSchema)

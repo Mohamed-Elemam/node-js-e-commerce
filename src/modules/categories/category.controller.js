@@ -42,11 +42,15 @@ const deleteCategory = async (req, res, next) => {
 };
 
 //*------------
-//*4--delete category
+//*4--get all category
 //*------------
 const getAllCategories = async (req, res, next) => {
 
-  const categories = await categoriesModel.find() ;
+  const categories = await categoriesModel.find().populate([
+    {
+      path:'subCategory'
+    }
+  ]) ;
  res.status(201).json({ categories});
 
 };

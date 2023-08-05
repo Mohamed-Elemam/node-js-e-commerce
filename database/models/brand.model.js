@@ -6,7 +6,6 @@ const brandSchema = mongoose.Schema({
     required: true,
     unique: true,
     trim:true,
-    minlength:[2,'too short name']
   },
   slug: {
     type: String,
@@ -14,7 +13,7 @@ const brandSchema = mongoose.Schema({
   },
   logo:{
     type:String,
-    required:true
+    // required:true
   }
 });
 

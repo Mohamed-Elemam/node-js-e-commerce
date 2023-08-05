@@ -4,7 +4,7 @@ import * as categoryControl from "./category.controller.js";
 import { errorHandling } from "./../../../utils/errorHandling.js";
 
 router.route("/")
-.post(categoryControl.addCategory)
+.post(errorHandling(categoryControl.addCategory))
 .get(errorHandling(categoryControl.getAllCategories))
 
 router.route("/:_id")

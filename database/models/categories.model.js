@@ -1,22 +1,34 @@
-import mongoose from "mongoose";
+import { Schema, model } from "mongoose";
 
-const categoriesSchema = mongoose.Schema({
-  name: {
-    type: String,
-    required: true,
-    unique: true,
-    trim:true,
-    minlength:[2,'too short name']
+const categoriesSchema = Schema(
+  {
+    name: {
+      type: String,
+      required: true,
+      unique: true,
+      trim: true,
+      minlength: [2, "too short name"],
+    },
+    slug: {
+      type: String,
+      lowercase: true,
+    },
+    image: {
+      type: String,
+      // required:true
+    },
+    createdBy: {
+      // type:Schema.ObjectId,
+      // ref:'user'
+    },
   },
-  slug: {
-    type: String,
-    lowercase:true,
-  },
-  image:{
-    type:String,
-    // required:true
-  }
+  { timestamps: true, toObject: { virtuals: true }, toJSON: { virtuals: true } }
+);
+
+categoriesSchema.virtual("subCategory", {
+  ref: "subCategory",
+  foreignField: "categoryId",
+  localField: "_id",
 });
 
-
-export const categoriesModel = mongoose.model('category',categoriesSchema)
+export const categoriesModel = model("category", categoriesSchema);
