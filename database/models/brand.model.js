@@ -1,21 +1,26 @@
-import mongoose, { model } from "mongoose";
+import mongoose from "mongoose";
 
-const brandSchema = mongoose.Schema({
-  name: {
-    type: String,
-    required: true,
-    unique: true,
-    trim:true,
+const brandSchema = new mongoose.Schema(
+  {
+    name: {
+      type: String,
+      required: true,
+      unique: true,
+      trim: true,
+    },
+    slug: {
+      type: String,
+      lowercase: true,
+    },
+    logo: {
+      type: String,
+      // required:true
+    },
   },
-  slug: {
-    type: String,
-    lowercase:true,
-  },
-  logo:{
-    type:String,
-    // required:true
-  }
-});
+  { timestamps: true, 
+    // toObject: { virtuals: true }, toJSON: { virtuals: true }
+   }
 
+);
 
-export const brandModel = model('brand',brandSchema)
+export const brandModel = mongoose.model("brand", brandSchema);

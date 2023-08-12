@@ -3,9 +3,10 @@ import express from 'express'
 // config();
 import { dbConnection } from './database/dbConnection.js'
 // import * as routers from './src/modules/index.routers.js'
-import categoyRouter from "./src/modules/categories/category.routes.js";
-import SubCategoyRouter from "./src/modules/subCategory/subCategory.routes.js";
-import brandRouter from "./src/modules/brand/brand.routes.js";
+// import categoyRouter from "./src/modules/categories/category.routes.js";
+// import SubCategoyRouter from "./src/modules/subCategory/subCategory.routes.js";
+// import brandRouter from "./src/modules/brand/brand.routes.js";
+import { allRouters } from './src/modules/index.routers.js';
 
 const app = express()
 const port = 3000
@@ -13,10 +14,9 @@ const port = 3000
 app.use(express.json()) 
 
 dbConnection()
+allRouters(app)
 
-app.use('/api/v1/category',categoyRouter)
-app.use('/api/v1/subCategory',SubCategoyRouter)
-app.use('/api/v1/brand',brandRouter)
-// app.use('*', (req, res) => res.status(404).json({ message: '404 Not Found URL' }))
+
+
 app.get('/', (req, res) => res.send('Hello World!'))
 app.listen(port, () => console.log(`Example app listening on port ${port}!`))

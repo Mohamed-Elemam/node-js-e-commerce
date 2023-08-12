@@ -1,13 +1,13 @@
 import { Schema, model } from "mongoose";
 
-const categoriesSchema = Schema(
+const categoriesSchema = new Schema(
   {
     name: {
       type: String,
       required: true,
       unique: true,
       trim: true,
-      minlength: [2, "too short name"],
+      // minlength: [2, "too short name"],
     },
     slug: {
       type: String,

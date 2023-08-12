@@ -1,6 +1,6 @@
-import mongoose, { Schema, model } from "mongoose";
+import  { Schema, model } from "mongoose";
 
-const subCategoriesSchema = mongoose.Schema({
+const subCategoriesSchema = new Schema({
   name: {
     type: String,
     required: true,
@@ -17,7 +17,7 @@ const subCategoriesSchema = mongoose.Schema({
     ref:'category'
   },
 },
-{ timestamps: true,}
+{ timestamps: true,toObject:{virtuals:true},toJSON:{virtuals:true}}
 );
 
 
