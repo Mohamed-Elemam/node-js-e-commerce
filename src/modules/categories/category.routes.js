@@ -1,14 +1,18 @@
 import { Router } from "express";
-const router = Router();
 import * as categoryControl from "./category.controller.js";
 import { errorHandling } from "./../../../utils/errorHandling.js";
+import subCategoryRouter from "../subCategory/subCategory.routes.js";
+const categoryRouter = Router();
 
-router.route("/")
+categoryRouter.use('/:categoryId/subcategory',subCategoryRouter)
+categoryRouter.route("/")
 .post(errorHandling(categoryControl.addCategory))
 .get(errorHandling(categoryControl.getAllCategories))
 
-router.route("/:_id")
+categoryRouter.route("/:_id")
 .put(errorHandling(categoryControl.updateCategory))
-.delete(errorHandling(categoryControl.deleteCategory))
+.delete(categoryControl.deleteCategory)
+.get(categoryControl.getOneCategory)
 
-export default router;
+
+export default categoryRouter;

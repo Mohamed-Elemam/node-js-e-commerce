@@ -14,6 +14,8 @@ export function allRouters(app) {
 
   app.use((err, req, res, next) => {
     let error = err.message;
-    next(res.status(500).json({ error }));
-  });
+    const statusCode = error.statusCode || 500; 
+
+    res.status(statusCode).json({ error })
+   });
 }
