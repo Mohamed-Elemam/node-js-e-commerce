@@ -7,10 +7,19 @@ import { brandModel } from './../../../database/models/brand.model.js';
 const addBrands = async (req, res, next) => {
   const { name } = req.body;
 
+  const {  subCategoryId, categoryId   }=req.params
+
+  const category = await brandModel.findOne({ categoryId });
+  if(!category) return res.status(404).json({ message: "category not found" });
+  
+  const subCategory = await brandModel.findOne({ subCategoryId });
+  if(!subCategory) return res.status(404).json({ message: "subCategory not found" });
+
   const isExist = await brandModel.findOne({ name });
 
-  isExist && res.status(400).json({ message: "brand already exist" });
-  const newBrand = new brandModel({ name, slug: slugify(name) });
+  if(isExist) return  res.status(400).json({ message: "brand already exist" });
+
+  const newBrand = new brandModel({ name, slug: slugify(name),categoryId,subCategoryId });
   await newBrand.save();
 
   res.status(201).json({ message: "brand add seccessfully", newBrand });
@@ -24,9 +33,12 @@ const updateBrands = async (req, res, next) => {
   const { name } = req.body;
 
   const brand = await brandModel.findByIdAndUpdate(_id , { name , slug:slugify(name)}, {new:true});
-!brand&&res.status(400).json({ message: "brand not found" });
- brand&&res.status(201).json({ message: "brand updated seccessfully" , brand});
-
+if(!brand){
+  return res.status(400).json({ message: "brand not found" });
+}
+if( brand){
+  return res.status(201).json({ message: "brand updated seccessfully" , brand});
+}
 };
 
 //*------------
@@ -36,9 +48,12 @@ const deleteBrands = async (req, res, next) => {
   const { _id } = req.params;
 
   const brand = await brandModel.findByIdAndDelete(_id );
-!brand&&res.status(400).json({ message: "brand not found" });
- brand&&res.status(201).json({ message: "brand deleted seccessfully" });
-
+if(!brand){
+  return res.status(400).json({ message: "brand not found" });
+}
+if( brand){
+  return res.status(201).json({ message: "brand deleted seccessfully" });
+}
 };
 
 //*------------

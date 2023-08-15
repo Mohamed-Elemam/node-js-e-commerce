@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+import mongoose, { Schema } from "mongoose";
 
 const brandSchema = new mongoose.Schema(
   {
@@ -16,6 +16,14 @@ const brandSchema = new mongoose.Schema(
       type: String,
       // required:true
     },
+    subCategoryId:{
+      type:Schema.ObjectId,
+      ref:'subCategory'
+    }, 
+    categoryId:{
+      type:Schema.ObjectId,
+      ref:'category'
+    }, 
   },
   { timestamps: true, 
     // toObject: { virtuals: true }, toJSON: { virtuals: true }
