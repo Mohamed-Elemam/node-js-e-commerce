@@ -1,16 +1,15 @@
 import { Router } from "express";
 import * as productControl from "./product.controller.js";
 import { errorHandling } from "../../../utils/errorHandling.js";
+import { allowedExtensions, multerFunction } from "../../services/multerCloud.js";
 const productRouter = Router();
 
 
-//add sub category
-productRouter.route("/:categoryId")
-.post(errorHandling(productControl.addproduct))
 
-//get all sub category
+
 productRouter.route("/")
-.get(errorHandling(productControl.getAllProducts))
+.post(multerFunction(allowedExtensions.Image).array("picture"),errorHandling(productControl.addproduct))
+.get(errorHandling(productControl.getAllProducts))  
 
 productRouter.route("/:_id")
 .put(errorHandling(productControl.updateproduct)) 

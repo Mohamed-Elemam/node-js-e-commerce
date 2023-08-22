@@ -1,25 +1,74 @@
 import slugify from "slugify";
 import { categoriesModel } from "../../../database/models/categories.model.js";
 import { productModel } from "../../../database/models/product.model .js";
+import { brandModel } from './../../../database/models/brand.model.js';
+import { subCategoriesModel } from "../../../database/models/subCategories.model.js";
+import cloudnairy from "../../../utils/cloudinaryConfig.js";
+import { nanoid } from "nanoid";
+import { ApiFeatures } from "../../../utils/ApiFeatures.js";
 
 //*------------
 //*1--add prodduct
 //*------------
 const addproduct = async (req, res, next) => {
-  const {categoryId}= req.params
-  const { name } = req.body;
-  req.body[slug]= slugify(req.body.title)
-  const category = await categoriesModel.findById(categoryId);
+  const {categoryId ,subCategoryId,brandId}= req.query
+  const { 
+    title,desc,colors,sizes,price,appliedDiscount,priceAfterDiscount
+   } = req.body
+
   
-  !category&&res.status(400).json({ message: "Category deoesnt exist" });
+   const customId = nanoid()
 
+   // image upload section
+   let bulkPictures = req.files
+  if (!bulkPictures) {
+    return next(new Error("no picture attached", { cause: 400 }));
+  }
+  let uploadPromise = bulkPictures?.map(async (picture) => {
+    const { public_id, secure_url } = await cloudnairy.uploader.upload(
+      picture.path,
+      {
+        folder:`${process.env.PROJECT_FOLDER_NAME}/Categories/${categoryId}/subCategories/${subCategoryId}/Brands/${brandId}/Products/${customId}`
+        ,
+        unique_filename: false,
+        resource_type: "image",
+      }
+    );
+    return { public_id, secure_url };
+  });
+  let uploadResponse = await Promise.all(uploadPromise);
+  
+   
+   
+    const category = await categoriesModel.findById(categoryId);
+  //*category check
+  if(!category){
+     res.status(400).json({ message: "Category doesnt exist" })
+    }
 
-  //*subcategory check
-  // const isExist = await productModel.findOne({ name });
-  // isExist && res.status(400).json({ message: "product already exist" });
+    //*subcategory check
+    const subCategory = await subCategoriesModel.findById(subCategoryId );
+    if(!subCategory){
+      res.status(400).json({ message: "Category doesnt exist" })
+    }
 
-  const newproduct = new productModel({  });
-  await newproduct.save();
+    //*brand check
+    const brand = await brandModel.findById( brandId);
+    if(!brand){
+       res.status(400).json({ message: "brand doesnt exist" })
+      }
+      const slug =  slugify(toString(title));
+      req.body.slug = slug
+  const newproduct = await productModel.create({ 
+    title,desc,slug,colors,sizes,price,appliedDiscount,priceAfterDiscount,
+    categoryId ,subCategoryId,brandId,customId,
+   images:uploadResponse
+   })
+   if(!newproduct){
+    await cloudnairy.api.delete_resources(publicIds)
+    return next(new Error('try again later', { cause: 400 }))
+
+   }
 
   res.status(201).json({ message: "product add seccessfully", newproduct });
 };
@@ -29,11 +78,42 @@ const addproduct = async (req, res, next) => {
 //*------------
 const updateproduct = async (req, res, next) => {
   const { _id } = req.params;
-  const { name } = req.body;
+  const { title, desc, price, appliedDiscount, colors, sizes, stock } = req.body
 
-  const product = await productModel.findByIdAndUpdate(_id , { name , slug:slugify(name)}, {new:true});
-!product&&res.status(400).json({ message: "product not found" });
- product&&res.status(201).json({ message: "product updated seccessfully" , product});
+
+  const product = await productModel.findById(_id );
+  !product&&res.status(400).json({ message: "product not found" });
+
+  
+  if (appliedDiscount && price) {
+    const priceAfterDiscount = price * (1 - (appliedDiscount || 0) / 100)
+    product.priceAfterDiscount = priceAfterDiscount
+    product.price = price
+    product.appliedDiscount = appliedDiscount
+  } else if (price) {
+    const priceAfterDiscount =
+      price * (1 - (product.appliedDiscount || 0) / 100)
+    product.priceAfterDiscount = priceAfterDiscount
+    product.price = price
+  } else if (appliedDiscount) {
+    const priceAfterDiscount =
+      product.price * (1 - (appliedDiscount || 0) / 100)
+    product.priceAfterDiscount = priceAfterDiscount
+    product.appliedDiscount = appliedDiscount
+  }
+
+
+  if (title) {
+    product.title = title
+    product.slug = slugify(title, '-')
+  }
+  if (desc) product.desc = desc
+  if (colors) product.colors = colors
+  if (sizes) product.sizes = sizes
+  if (stock) product.stock = stock
+  await product.save()
+
+ product&&res.status(201).json({ message: "product updated sucessfully" , product});
 
 };
 
@@ -44,8 +124,12 @@ const deleteproduct = async (req, res, next) => {
   const { _id } = req.params;
 
   const product = await productModel.findByIdAndDelete(_id );
-!product&&res.status(400).json({ message: "product not found" });
- product&&res.status(201).json({ message: "product deleted seccessfully" });
+!product&&res.status(404).json({ message: "product not found" });
+
+  if(product){
+
+    return res.status(201).json({ message: "product deleted seccessfully" });
+  }
 
 };
 
@@ -54,10 +138,23 @@ const deleteproduct = async (req, res, next) => {
 //*------------
 const getAllProducts = async (req, res, next) => {
 
-  const Products = await productModel.find() ;
- res.status(201).json({ Products});
 
+
+  
+//  let mongooseQuery =   productModel.find(queryString).skip(skip).limit(pageLimit)
+let apiFeatures  = new ApiFeatures(productModel.find(), req.query)
+.paginate().sort().search().select()
+ 
+
+  const Products = await apiFeatures.mongooseQuery
+  if(!Products.length){
+    return res.status(404).json({ message: "No products  found" });
+  }
+  res.status(201).json({ Products});
+  
 };
+
+
 
 export {
   addproduct,
@@ -65,3 +162,5 @@ export {
   deleteproduct,
   getAllProducts,
 };
+
+

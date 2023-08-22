@@ -1,6 +1,6 @@
-import mongoose from "mongoose";
+import { Schema, model } from "mongoose";
 
-const productSchema = new mongoose.Schema(
+const productSchema = new Schema(
   {
     // ================= text section==================
     title: {
@@ -15,6 +15,7 @@ const productSchema = new mongoose.Schema(
       type: String,
       required: true,
       lowercase: true,
+      
     },
     // ================= Specifications section==================
     colors: [String],
@@ -84,4 +85,4 @@ const productSchema = new mongoose.Schema(
   }
 );
 
-export const productModel = mongoose.model("product", productSchema);
+export const productModel = model("product", productSchema);
