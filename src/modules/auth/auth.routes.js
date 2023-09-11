@@ -7,6 +7,7 @@ import { errorHandling } from "../../../utils/errorHandling.js";
 
 router.post("/signup" ,errorHandling(userController.signUp))
 router.post("/login" ,errorHandling(userController.logIn))
+router.get("/" ,errorHandling(userController.handleAuth))
 
 router.route("/:_id")
 .put(errorHandling(userController.updateUser)) 

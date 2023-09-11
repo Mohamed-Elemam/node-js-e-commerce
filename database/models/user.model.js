@@ -61,12 +61,13 @@ const userSchema = new Schema(
     forgetCode: String,
     isConfirmed: Boolean,
     isDeleted: Boolean,
+    review:String,
+    wishlist:[{type:Schema.Types.ObjectId , ref:'product'}]
 
   },
   { timestamps: true }
 );
 
-// function hashPassword(password){
 
 userSchema.pre('save' , function(){
   console.log(process.env.SALT_ROUNDS)

@@ -1,12 +1,11 @@
 import express from 'express'
-// import { config } from "dotenv";
-// config();
+import { config } from "dotenv";
+config();
 import { dbConnection } from './database/dbConnection.js'
 import { allRouters } from './src/modules/index.routers.js';
 
 const app = express()
-const port = 3000
-// process.env.PORT 
+const port = process.env.PORT 
 app.use(express.json()) 
 
 dbConnection()

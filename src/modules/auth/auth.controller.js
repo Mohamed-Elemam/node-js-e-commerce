@@ -1,6 +1,7 @@
 import bcrypt from "bcrypt";
 import { userModel } from "../../../database/models/user.model.js";
 import jwt from "jsonwebtoken";
+import { json } from "express";
 
 //*------------
 //*1--signUp
@@ -60,7 +61,6 @@ const logIn = async (req, res, next) => {
   // if (!isEmailConfirmed) {
     //   return res.status(404).json({ message: "Email not found please sign up" })
     // }
-    
     const user = await userModel.findOne({  email  });
     
       if (!user){
@@ -70,10 +70,11 @@ const logIn = async (req, res, next) => {
       if (!passwordMatch) {
         return res.status(400).json({ message: "Invalid login credentials" });
       }
-  // process.env.SALT_ROUNDS
+        const token = jwt.sign({_id:user._id,userName:user.userName ,email} , process.env.TOKEN_SECRET)
+
     // const decodedPassword = bcrypt.compareSync(password  , 8)
 
-  res.status(201).json({ message: "seccess", user });
+  res.status(201).json({ message: "seccess", user , token });
 };
 //*------------
 //*3--update user
@@ -117,11 +118,38 @@ const forgetPassword = async (req, res, next) => {
     return res.status(404).json({ message: "user not found" });
   }
 
-
-
     return res.status(201).json({ message: "user deleted seccessfully" });
 };
 
+
+
+// auth middleware
+
+export const handleAuth = async(req , res ,next)=>{
+const token = req?.headers?.authorization?.split(' ')[1]
+
+  if(!token){
+    return res.status(403).json({message:'please sign up'})
+  }
+
+const decodedToken = jwt.verify(token , process.env.TOKEN_SECRET)
+
+try {
+  if (!decodedToken || !decodedToken._id) {
+    return res.status(401).json({ message: "Invalid token" });
+  }
+  
+const isUserExist = await userModel.findById(decodedToken._id);
+if (!isUserExist) {
+  return res.status(404).json({ message: "Invalid login credentials" });
+}    
+req.user =isUserExist
+} catch (error) {
+  return res.status(401).json({error})
+}
+
+next()
+}
 
 
 export {

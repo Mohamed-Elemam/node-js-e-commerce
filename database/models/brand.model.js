@@ -17,11 +17,11 @@ const brandSchema = new mongoose.Schema(
       // required:true
     },
     subCategoryId:{
-      type:Schema.ObjectId,
+      type:Schema.Types.ObjectId,
       ref:'subCategory'
     }, 
     categoryId:{
-      type:Schema.ObjectId,
+      type:Schema.Types.ObjectId,
       ref:'category'
     }, 
   },
