@@ -128,13 +128,13 @@ const forgetPassword = async (req, res, next) => {
 export const handleAuth = async(req , res ,next)=>{
 const token = req?.headers?.authorization?.split(' ')[1]
 
+try {
   if(!token){
     return res.status(403).json({message:'please sign up'})
   }
 
 const decodedToken = jwt.verify(token , process.env.TOKEN_SECRET)
 
-try {
   if (!decodedToken || !decodedToken._id) {
     return res.status(401).json({ message: "Invalid token" });
   }
@@ -145,7 +145,7 @@ if (!isUserExist) {
 }    
 req.user =isUserExist
 } catch (error) {
-  return res.status(401).json({error})
+  return res.status(401).json({error:error.message})
 }
 
 next()

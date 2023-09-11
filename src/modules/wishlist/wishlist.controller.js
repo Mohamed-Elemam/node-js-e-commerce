@@ -29,7 +29,16 @@ const removeFromWishlist = async (req, res, next) => {
   }
 };
 
+const getAllUserwishlist = async (req, res, next) => {
+  // const {_id}=req.user
+  console.log(req.user._id)///use email?
+  const wishlist = await userModel.findById({})
+  
+res.status(200).json({wishlist})
+};
+
 export {
   addToWishlist, 
-  removeFromWishlist
+  removeFromWishlist,
+  getAllUserwishlist
 };
