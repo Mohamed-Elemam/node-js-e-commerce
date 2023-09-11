@@ -7,11 +7,11 @@ import { errorHandling } from "../../../utils/errorHandling.js";
 
 //get all user
 router.route("/")
-.post(errorHandling(userController.signUp))
-// .get(errorHandling(userController.getAllBrands))
+.post(errorHandling(userController.addUser))
+.get(errorHandling(userController.getAllUsers))
 
 router.route("/:_id")
-.put(errorHandling(userController.updateUser)) //update user
-.delete(errorHandling(userController.deleteUser)) //delete user
+.put(errorHandling(userController.updateUser))
+.delete(errorHandling(userController.deleteUser)) 
 
 export default router;

@@ -2,6 +2,7 @@ import { Schema, model } from "mongoose";
 // import { const } from './../dbConnection';
 import bcrypt from "bcrypt";
 
+
 const userSchema = new Schema(
   {
     userName: {
@@ -33,7 +34,7 @@ const userSchema = new Schema(
     role: {
       type: String,
       default: "user",
-      enum: ["superAdmin", "admin", "user"],
+      enum: [ "admin", "user"],
     },
     phoneNumber: {
       type: String,
@@ -58,14 +59,19 @@ const userSchema = new Schema(
     age: Number,
     token: String,
     forgetCode: String,
+    isConfirmed: Boolean,
+    isDeleted: Boolean,
+
   },
   { timestamps: true }
 );
 
 // function hashPassword(password){
 
-// userModel.pre save
-//   const hashedPassword = bcrypt.hashSync(password ,process.env.SALT_ROUNDS )
-// }
+userSchema.pre('save' , function(){
+  console.log(process.env.SALT_ROUNDS)
+   const hashedPassword = bcrypt.hashSync(this.password ,8)
+   this.password = hashedPassword
+})
 
 export const userModel = model("user", userSchema);
