@@ -60,7 +60,6 @@ const userSchema = new Schema(
     forgetCode: String,
     isConfirmed: Boolean,
     isDeleted: Boolean,
-    reviews:[String],
     wishlist:[{type:SchemaTypes.ObjectId , ref:'product'}]
 
   },

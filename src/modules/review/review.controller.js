@@ -1,26 +1,23 @@
-import { brandModel } from "../../../database/models/brand.model.js";
-import { userModel } from "../../../database/models/user.model.js";
 import { productModel } from '../../../database/models/product.model.js';
+import { reviewModel } from "../../../database/models/review.model.js";
 
 //*------------
 //*1--add review on product
 //*------------
 const addReview = async (req, res, next) => {
-  const { _id } = req.user;
-  const { productId } = req.params;
-  const {review } = req.body;
+  const userId = req.user._id;
+  const {review , productId  , rating } = req.body;
 
   const product = await productModel.findById( productId );
   if (!product) {
     return res.status(404).json({ message: "product not found" });
   }
-  const result = await userModel.findByIdAndUpdate(
-    { _id },
-    { $addToSet: { reviews: [productId, review] } },
-    {new: true}
+  const newReview = new reviewModel(
+    {  review , productId  , rating , userId } 
   );
+    await newReview.save()
 
-  res.status(201).json({ message: "review added successfully ", result:result.reviews });
+  res.status(201).json({ message: "review added successfully ",newReview });
 };
 
 //*------------
@@ -28,49 +25,52 @@ const addReview = async (req, res, next) => {
 //*------------
 
 const deleteReview = async (req, res, next) => {
-  const { _id } = req.user;
-  const { productId } = req.params;
+  const { reviewId } = req.params;
 
-  const product = await productModel.findById( productId );
-  if (!product) {
-    return res.status(404).json({ message: "product not found" });
+  const review = await reviewModel.findByIdAndDelete( reviewId );
+  if (!review) {
+    return res.status(404).json({ message: "review not found" });
   }
-  const result = await userModel.findByIdAndUpdate(
-    { _id },
-    { $pull: { reviews: productId } },
-    {new: true}
-  );
-
-  res.status(201).json({ message: "review removed successfully ", result:result.reviews });
+  
+  res.status(201).json({ message: "review removed successfully " });
 };
 
 //* 3 update review
 
 const updateReview = async (req, res, next) => {
-  const { _id } = req.user;
-  const { productId } = req.params;
-  const {review } = req.body;
+  const {review , productId  , rating } = req.body;
+  const { reviewId } = req.params;
 
 
-  const product = await productModel.findById( productId );
-  if (!product) {
-    return res.status(404).json({ message: "product not found" });
-  }
-  const result = await userModel.findByIdAndUpdate(
-    { _id },
-    { $pull: { reviews: productId , review} },
-    {new: true}
+  const isReviewExist = await reviewModel.findById(
+    reviewId 
   );
+    if(!isReviewExist){
+      return res.status(404).json({ message: "review not found" });
+    }
 
-  res.status(201).json({ message: "review updated successfully ", result:result.reviews });
+    isReviewExist.review = review;
+    isReviewExist.productId = productId;
+    isReviewExist.rating = rating;
+
+    await isReviewExist.save();
+
+  res.status(201).json({ message: "review updated successfully ", isReviewExist });
 };
 
 //* 4 get user reviews
 const getAllUserReviews = async (req, res, next) => {
-
-
-  const user = await userModel.findById({_id:req.user._id})
-  res.status(200).json({ reviews:user.reviews });
+  
+  const reviews = await reviewModel.find()
+  res.status(200).json({ message: done , reviews});
 };
 
-export { addReview, deleteReview,updateReview, getAllUserReviews };
+//* 5 get user review by review id
+const getReviewById = async (req, res, next) => {
+
+const {reviewId} = req.params
+  const review = await reviewModel.findById(reviewId)
+  res.status(200).json({ message: 'done' , review });
+};
+ 
+export { addReview, deleteReview,updateReview, getAllUserReviews  , getReviewById};

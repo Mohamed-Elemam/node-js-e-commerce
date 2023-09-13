@@ -1,7 +1,6 @@
 import bcrypt from "bcrypt";
 import { userModel } from "../../../database/models/user.model.js";
 import jwt from "jsonwebtoken";
-import { json } from "express";
 
 //*------------
 //*1--signUp
