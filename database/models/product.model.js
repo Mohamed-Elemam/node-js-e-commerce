@@ -1,4 +1,4 @@
-import { Schema, model } from "mongoose";
+import { Schema, SchemaTypes, model } from "mongoose";
 
 const productSchema = new Schema(
   {
@@ -49,32 +49,32 @@ const productSchema = new Schema(
     ],
     // ======= Related Ids section =======
     categoryId: {
-      type: Schema.Types.ObjectId,
+      type: SchemaTypes.ObjectId,
       ref: "Category",
       required: true,
     },
     subCategoryId: {
-      type: Schema.Types.ObjectId,
+      type: SchemaTypes.ObjectId,
       ref: "subCategory",
       required: true,
     },
     brandId: {
-      type: Schema.Types.ObjectId,
+      type: SchemaTypes.ObjectId,
       ref: "Brand",
       required: true,
     },
 
     createdBy: {
-      type: Schema.Types.ObjectId,
+      type: SchemaTypes.ObjectId,
       ref: "User",
       required: false,
     },
     updatedBy: {
-      type: Schema.Types.ObjectId,
+      type: SchemaTypes.ObjectId,
       ref: "User",
     },
     deletedBy: {
-      type: Schema.Types.ObjectId,
+      type: SchemaTypes.ObjectId,
       ref: "User",
     },
     customId: String,

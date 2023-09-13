@@ -1,6 +1,6 @@
 import slugify from "slugify";
 import { categoriesModel } from "../../../database/models/categories.model.js";
-import { productModel } from "../../../database/models/product.model .js";
+import { productModel } from "../../../database/models/product.model.js";
 import { brandModel } from './../../../database/models/brand.model.js';
 import { subCategoriesModel } from "../../../database/models/subCategories.model.js";
 import cloudnairy from "../../../utils/cloudinaryConfig.js";

@@ -18,7 +18,7 @@ const categoriesSchema = new Schema(
       // required:true
     },
     createdBy: {
-      // type:Schema.ObjectId,
+      // type:SchemaTypes.ObjectId,
       // ref:'user'
     },
   },

@@ -1,5 +1,4 @@
-import { Schema, model } from "mongoose";
-// import { const } from './../dbConnection';
+import { Schema, SchemaTypes, model } from "mongoose";
 import bcrypt from "bcrypt";
 
 
@@ -61,8 +60,8 @@ const userSchema = new Schema(
     forgetCode: String,
     isConfirmed: Boolean,
     isDeleted: Boolean,
-    review:String,
-    wishlist:[{type:Schema.Types.ObjectId , ref:'product'}]
+    reviews:[String],
+    wishlist:[{type:SchemaTypes.ObjectId , ref:'product'}]
 
   },
   { timestamps: true }

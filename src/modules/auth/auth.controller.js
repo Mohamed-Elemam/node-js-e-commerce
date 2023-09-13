@@ -124,8 +124,7 @@ const forgetPassword = async (req, res, next) => {
 
 
 // auth middleware
-
-export const handleAuth = async(req , res ,next)=>{
+const handleAuth = async(req , res ,next)=>{
 const token = req?.headers?.authorization?.split(' ')[1]
 
 try {
@@ -143,7 +142,7 @@ const isUserExist = await userModel.findById(decodedToken._id);
 if (!isUserExist) {
   return res.status(404).json({ message: "Invalid login credentials" });
 }    
-req.user =isUserExist
+req.user =decodedToken
 } catch (error) {
   return res.status(401).json({error:error.message})
 }
@@ -158,6 +157,7 @@ export {
   updateUser,
   deleteUser,
   forgetPassword,
+  handleAuth
 };
 /*
 1-sign up

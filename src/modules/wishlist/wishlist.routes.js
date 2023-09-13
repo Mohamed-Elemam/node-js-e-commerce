@@ -6,10 +6,11 @@ import { handleAuth } from './../auth/auth.controller.js';
 
 
 
-router.post("/",handleAuth,errorHandling(wishlistController.addToWishlist))
+router.patch("/:productId",handleAuth,errorHandling(wishlistController.addToWishlist))
 
+router.delete("/:productId",handleAuth,errorHandling(wishlistController.removeFromWishlist))
+
+
+//get user withlist
 router.get("/",handleAuth,errorHandling(wishlistController.getAllUserwishlist))
-
-router.patch("/:_id",handleAuth,errorHandling(wishlistController.removeFromWishlist))
-
 export default router;

@@ -1,4 +1,4 @@
-import  { Schema, model } from "mongoose";
+import  { Schema, SchemaTypes, model } from "mongoose";
 
 const subCategoriesSchema = new Schema({
   name: {
@@ -13,7 +13,7 @@ const subCategoriesSchema = new Schema({
     lowercase:true,
   },
   categoryId:{
-    type:Schema.ObjectId,
+    type:SchemaTypes.ObjectId,
     ref:'category'
   },
 },

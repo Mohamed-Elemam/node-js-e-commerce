@@ -1,16 +1,25 @@
-import { brandModel } from '../../../database/models/brand.model.js';
+import { brandModel } from "../../../database/models/brand.model.js";
 import { userModel } from "../../../database/models/user.model.js";
+import { productModel } from '../../../database/models/product.model.js';
 
 //*------------
 //*1--add to wishlist
 //*------------
 const addToWishlist = async (req, res, next) => {
-  const {_id}=req.user
-  
-  const user= await userModel.findById({_id})
-  console.log(user)
+  const { _id } = req.user;
+  const { productId } = req.params;
 
-  res.status(201).json({ message: "brand add seccessfully", newBrand });
+  const product = await productModel.findById( productId );
+  if (!product) {
+    return res.status(404).json({ message: "product not found" });
+  }
+  const result = await userModel.findByIdAndUpdate(
+    { _id },
+    { $addToSet: { wishlist: productId } },
+    {new: true}
+  );
+
+  res.status(201).json({ message: "product added successfully to withlist", result:result.wishlist });
 };
 
 //*------------
@@ -18,27 +27,29 @@ const addToWishlist = async (req, res, next) => {
 //*------------
 
 const removeFromWishlist = async (req, res, next) => {
-  const { _id } = req.params;
+  const { _id } = req.user;
+  const { productId } = req.params;
 
-  const brand = await brandModel.findByIdAndDelete(_id);
-  if (!brand) {
-    return res.status(400).json({ message: "brand not found" });
+  const product = await productModel.findById( productId );
+  if (!product) {
+    return res.status(404).json({ message: "product not found" });
   }
-  if (brand) {
-    return res.status(201).json({ message: "brand deleted seccessfully" });
-  }
+  const result = await userModel.findByIdAndUpdate(
+    { _id },
+    { $pull: { wishlist: productId } },
+    {new: true}
+  );
+
+  res.status(201).json({ message: "product removed successfully to withlist", result:result.wishlist });
+    
+  
 };
 
 const getAllUserwishlist = async (req, res, next) => {
-  // const {_id}=req.user
-  console.log(req.user._id)///use email?
-  const wishlist = await userModel.findById({})
-  
-res.status(200).json({wishlist})
+
+
+  const user = await userModel.findById({_id:req.user._id})
+  res.status(200).json({ wishlist:user.wishlist });
 };
 
-export {
-  addToWishlist, 
-  removeFromWishlist,
-  getAllUserwishlist
-};
+export { addToWishlist, removeFromWishlist, getAllUserwishlist };
