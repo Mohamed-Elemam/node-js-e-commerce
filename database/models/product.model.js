@@ -17,6 +17,9 @@ const productSchema = new Schema(
       lowercase: true,
       
     },
+    quantity:{
+      type:Number
+    },
     // ================= Specifications section==================
     colors: [String],
     sizes: [String],

@@ -1,34 +1,56 @@
-import slugify from "slugify";
-import { brandModel } from '../../../database/models/brand.model.js';
-import { categoriesModel } from "../../../database/models/categories.model.js";
-import { subCategoriesModel } from "../../../database/models/subCategories.model.js";
+import { cartModel } from './../../../database/models/cart.model.js';
+import { productModel } from "../../../database/models/product.model.js";
 
+
+function calcTotalPrice(cart){
+  let totalPrice = 0
+  cart.cartItems.forEach(ele=>{
+    totalPrice += ele.quantity * ele.price
+  })
+   return cart.totalprice = totalPrice
+}
 //*------------
 //*1--add to cart
 //*------------
 const addToCart = async (req, res, next) => {
-  const { name } = req.body;
-  const { subCategoryId, categoryId } = req.query
-  const category = await categoriesModel.findById(categoryId);
-  if (!category) {
-    return res.status(404).json({ message: "category not found" })
+
+  let userId = req.user._id;
+  let isProduct = await productModel.findById(req.body.productId)
+  if(!isProduct){
+    return next(new Error('Product not found',404))
   }
 
-  const subCategory = await subCategoriesModel.findById(subCategoryId);
-  if (!subCategory) {
-    return res.status(404).json({ message: "subCategory not found" })
+  req.body.price = isProduct.price
+
+  let isCart = await cartModel.findOne({userId})
+  if(!isCart){
+
+    let cart = new cartModel({
+      userId,
+      cartItems:[
+        // {
+      req.body
+      // totalProductDiscount: (isProduct.price-isProduct.priceAfterDiscount) ,
+      // isProduct.appliedDiscount ||
+    // }
+  ]})
+    calcTotalPrice(cart)
+    await cart.save()
+    return res.status(201).json({ message: "success", cart });
+    
   }
 
-  const isExist = await brandModel.findOne({ name });
-
-  if (isExist) {
-    return res.status(400).json({ message: "brand already exist" })
+  let item = isCart.cartItems.find(ele => ele?.productId == req.body.productId)
+  if(item){
+    item.quantity += req.body.quantity || 1
+    
+  }else{
+    isCart.cartItems.push(req.body)
   }
-
-  const newBrand = new brandModel({ name, slug: slugify(name), categoryId, subCategoryId });
-  await newBrand.save();
-
-  res.status(201).json({ message: "brand add seccessfully", newBrand });
+  calcTotalPrice(isCart)
+  await isCart.save()
+   res.status(201).json({ message: "success", cart:isCart });
+ 
 };
 
 //*------------
@@ -36,18 +58,54 @@ const addToCart = async (req, res, next) => {
 //*------------
 
 const removeFromCart = async (req, res, next) => {
-  const { _id } = req.params;
 
-  const brand = await brandModel.findByIdAndDelete(_id);
-  if (!brand) {
-    return res.status(400).json({ message: "brand not found" });
+  const {_id}=req.params
+  let result = await cartModel.findOneAndUpdate({userId:req.user._id},{$pull:{cartItems:{_id}}},{new:true})
+  if(!result){
+    return next(new Error('Product not found',404))
   }
-  if (brand) {
-    return res.status(201).json({ message: "brand deleted seccessfully" });
-  }
+  calcTotalPrice(result)
+  res.status(201).json({ message: "success", cart:result });
+
 };
 
+//*------------
+//*3-- update product quantity
+//*------------
+const updateProductQuantity = async (req, res, next) => {
+  
+  let isProduct = await productModel.findById(req.body.productId)
+  if(!isProduct){
+    return next(new Error('Product not found',404))
+  }
+  let isCartExist = await cartModel.findOne({userId:req.user._id})
+  if(!isCartExist){
+    return next(new Error('cart not found',404))
+  }
+  let item = isCartExist.cartItems.find(ele => ele.productId == req.body.productId)
+  if(!item){
+    return next(new Error('item is not in cart found',404))
+    
+  }
+  item.quantity=req.body.quantity
+  calcTotalPrice(isCartExist)
+  await isCartExist.save()
+   res.status(201).json({ message: "success", cart:isCartExist });
+ 
+};
+//*------------
+//*4-- logged User Cart
+//*------------
+const loggedUserCart = async (req, res ,next)=>{
+
+  const cart = await cartModel.findOne({userId:req.user._id})
+  .populate("cartItems.productId")
+  res.status(201).json({ message: "success", cart });
+
+}
 export {
   addToCart, 
-  removeFromCart
+  removeFromCart,
+  updateProductQuantity,
+  loggedUserCart
 };

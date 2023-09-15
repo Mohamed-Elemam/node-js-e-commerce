@@ -5,14 +5,18 @@ import { reviewModel } from "../../../database/models/review.model.js";
 //*1--add review on product
 //*------------
 const addReview = async (req, res, next) => {
-  const userId = req.user._id;
+  let userId = req.user._id;
   const {review , productId  , rating } = req.body;
 
-  const product = await productModel.findById( productId );
+  let product = await productModel.findById( productId );
   if (!product) {
     return res.status(404).json({ message: "product not found" });
   }
-  const newReview = new reviewModel(
+  let isReview = await reviewModel.findOne({userId , productId})
+  if(isReview){
+    return next(new Error('you created review on this product before',409))
+  }
+  let newReview = new reviewModel(
     {  review , productId  , rating , userId } 
   );
     await newReview.save()
@@ -61,8 +65,8 @@ const updateReview = async (req, res, next) => {
 //* 4 get user reviews
 const getAllUserReviews = async (req, res, next) => {
   
-  const reviews = await reviewModel.find()
-  res.status(200).json({ message: done , reviews});
+  const reviews = await reviewModel.find({userId:req.user._id})
+  res.status(200).json({ message: 'done' , reviews});
 };
 
 //* 5 get user review by review id
