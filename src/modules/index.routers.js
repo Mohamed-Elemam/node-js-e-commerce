@@ -7,7 +7,7 @@ import userRouter from "./user/user.routes.js";
 import wishlistRouter from "./wishlist/wishlist.routes.js";
 import reviewRouter from "./review/review.routes.js";
 import cartRouter from "./cart/cart.routes.js";
-// import productRouter from "./product/product.router.js";
+import couponRouter from "./coupon/coupon.routes.js";
 
 export function allRouters(app) {
   app.use("/api/v1/category", categoyRouter);
@@ -19,6 +19,7 @@ export function allRouters(app) {
   app.use("/api/v1/wishlist", wishlistRouter);
   app.use("/api/v1/review", reviewRouter);
   app.use("/api/v1/cart", cartRouter);
+  app.use("/api/v1/coupon", couponRouter);
 
   app.all("*", (req, res, next) => {
     next(new Error("404 Not Found URL", { cause: 404 }));

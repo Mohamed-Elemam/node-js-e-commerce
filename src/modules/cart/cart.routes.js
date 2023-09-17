@@ -12,4 +12,6 @@ router.route("/")
 router.route("/:_id")
 .delete(handleAuth,errorHandling(cartController.removeFromCart)) 
 
+router.post(("/applyCoupon/:couponCode"),handleAuth,errorHandling(cartController.applyCoupon))
+
 export default router;

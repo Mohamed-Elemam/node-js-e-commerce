@@ -1,5 +1,6 @@
 import { cartModel } from './../../../database/models/cart.model.js';
 import { productModel } from "../../../database/models/product.model.js";
+import { couponModel } from '../../../database/models/coupon.model.js';
 
 
 function calcTotalPrice(cart){
@@ -28,11 +29,8 @@ const addToCart = async (req, res, next) => {
     let cart = new cartModel({
       userId,
       cartItems:[
-        // {
       req.body
-      // totalProductDiscount: (isProduct.price-isProduct.priceAfterDiscount) ,
-      // isProduct.appliedDiscount ||
-    // }
+     
   ]})
     calcTotalPrice(cart)
     await cart.save()
@@ -48,6 +46,11 @@ const addToCart = async (req, res, next) => {
     isCart.cartItems.push(req.body)
   }
   calcTotalPrice(isCart)
+  
+  if(isCart.discount){ 
+  const discountAmount =  (isCart.totalprice *isCart.discount) / 100 
+  isCart.totalpriceAfterDiscount = isCart.totalprice - discountAmount
+  }
   await isCart.save()
    res.status(201).json({ message: "success", cart:isCart });
  
@@ -65,6 +68,10 @@ const removeFromCart = async (req, res, next) => {
     return next(new Error('Product not found',404))
   }
   calcTotalPrice(result)
+  if(result.discount){ 
+  const discountAmount =  (result.totalprice *result.discount) / 100 
+    result.totalpriceAfterDiscount = result.totalprice - discountAmount
+    }
   res.status(201).json({ message: "success", cart:result });
 
 };
@@ -89,6 +96,10 @@ const updateProductQuantity = async (req, res, next) => {
   }
   item.quantity=req.body.quantity
   calcTotalPrice(isCartExist)
+  if(isCartExist.discount){ 
+    const discountAmount =  (isCartExist.totalprice *isCartExist.discount) / 100 
+      isCartExist.totalpriceAfterDiscount = isCartExist.totalprice - discountAmount
+      }
   await isCartExist.save()
    res.status(201).json({ message: "success", cart:isCartExist });
  
@@ -103,9 +114,33 @@ const loggedUserCart = async (req, res ,next)=>{
   res.status(201).json({ message: "success", cart });
 
 }
+
+//*------------
+//*5-- apply coupon
+//*------------
+const applyCoupon = async (req, res ,next)=>{
+
+  const {couponCode} = req.params
+  const coupon = await couponModel.findOne({code:couponCode , expiresAt:{$gt:Date.now()}});
+  if (!coupon) {
+    return res.status(400).json({ message: "coupon not found" });
+  }
+  
+  const cart = await cartModel.findOne({userId:req.user._id})
+
+const discountAmount =  (cart.totalprice *coupon.discount) / 100 
+cart.totalpriceAfterDiscount = cart.totalprice - discountAmount
+// if(!cart.discount){ 
+  cart.discount = coupon.discount
+// }
+  await cart.save()
+
+  res.status(200).json({message: "Coupon applied successfully",cart});
+}
+
 export {
   addToCart, 
   removeFromCart,
   updateProductQuantity,
-  loggedUserCart
+  loggedUserCart, applyCoupon
 };
