@@ -138,7 +138,6 @@ const deleteproduct = async (req, res, next) => {
 //*------------
 const getAllProducts = async (req, res, next) => {
  
-//  let mongooseQuery =   productModel.find(queryString).skip(skip).limit(pageLimit)
 let apiFeatures  = new ApiFeatures(productModel.find(), req.query)
 .paginate().sort().search().select()
  

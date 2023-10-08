@@ -1,6 +1,6 @@
 import mongoose, { Types } from "mongoose";
 
-const cartSchema = new mongoose.Schema(
+const orderSchema = new mongoose.Schema(
   {
     userId: {
       type: Types.ObjectId,
@@ -39,4 +39,4 @@ const cartSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-export const cartModel = mongoose.model("cart", cartSchema);
+export const orderModel = mongoose.model("order", orderSchema);

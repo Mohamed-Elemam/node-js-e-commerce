@@ -6,8 +6,9 @@
 
   export const  dbConnection = async ()=>{
   
-  await mongoose.connect("mongodb://127.0.0.1:27017/eCommerce")
-  .then(()=>{console.log('database connect successfully')})
+  // await mongoose.connect("mongodb://127.0.0.1:27017/eCommerce")
+  await mongoose.connect(process.env.DB_CONNECTION_ONLINE)
+  .then(()=>{console.log('database connect successfully to ' )})
   .catch((err)=>{console.log('database connection failed',err)})
   }
   

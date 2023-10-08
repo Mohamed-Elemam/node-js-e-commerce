@@ -8,18 +8,15 @@ const productSchema = new Schema(
       required: true,
       lowercase: true,
     },
-    desc: {
-      type: String,
-    },
+    desc: String,
     slug: {
       type: String,
       required: true,
       lowercase: true,
       
     },
-    quantity:{
-      type:Number
-    },
+    quantity:{type:Number , min:1},
+    sold:{type:Number, default:0},
     // ================= Specifications section==================
     colors: [String],
     sizes: [String],
