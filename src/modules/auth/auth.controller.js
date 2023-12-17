@@ -6,37 +6,34 @@ import jwt from "jsonwebtoken";
 //*1--signUp
 //*------------
 const signUp = async (req, res, next) => {
+  const { userName, email, password, age, phoneNumber, address, gender } =
+    req.body;
 
-  const {
-  userName,
-  email,
-  password,
-  age,
-  phoneNumber,
-  address,
-  gender} = req.body
-
-  const isEmailExist = await userModel.findOne({email});
+  const isEmailExist = await userModel.findOne({ email });
   if (isEmailExist) {
-    return res.status(404).json({ message: "Email already exist" })
+    return res.status(404).json({ message: "Email already exist" });
   }
-  const newUser = new userModel({  userName,email,password,age,phoneNumber,address,gender });
+  const newUser = new userModel({
+    userName,
+    email,
+    password,
+    age,
+    phoneNumber,
+    address,
+    gender,
+  });
 
   //*token
   // const token = jwt.sign(newUser , process.env.TOKEN_SECRET)
   // const token = jwt.sign(newUser , '__Ecomm')
 
-
-//*confirm mail
-//   const link = `${req.headers}://${req.host}.com/user/confirm/${token}` 
-//   sendConfirmationEmail(email , 'Email confimation mail' ,
-//  `<a href=${link}>Click here to confirm mail</a>`
-//    )
-
-
+  //*confirm mail
+  //   const link = `${req.headers}://${req.host}.com/user/confirm/${token}`
+  //   sendConfirmationEmail(email , 'Email confimation mail' ,
+  //  `<a href=${link}>Click here to confirm mail</a>`
+  //    )
 
   await newUser.save();
-
 
   res.status(201).json({ message: "seccess", newUser });
 };
@@ -45,50 +42,52 @@ const signUp = async (req, res, next) => {
 //*2--logIn
 //*------------
 const logIn = async (req, res, next) => {
- 
-  const {
-    email,
-    password,
-  } = req.body
-  
+  const { email, password } = req.body;
 
-  const isEmailExist = await userModel.findOne({email});
+  const isEmailExist = await userModel.findOne({ email });
   if (!isEmailExist) {
-    return res.status(404).json({ message: "Email not found please sign up" })
+    return res.status(404).json({ message: "Email not found please sign up" });
   }
   // const isEmailConfirmed = await userModel.findOne({email});
   // if (!isEmailConfirmed) {
-    //   return res.status(404).json({ message: "Email not found please sign up" })
-    // }
-    const user = await userModel.findOne({  email  });
-    
-      if (!user){
-        res.status(404).json({ message: "Invalid login credentials" });
-      }
-      const passwordMatch = bcrypt.compareSync(password, user.password);
-      if (!passwordMatch) {
-        return res.status(400).json({ message: "Invalid login credentials" });
-      }
-        const token = jwt.sign({_id:user._id,userName:user.userName ,email} , process.env.TOKEN_SECRET)
+  //   return res.status(404).json({ message: "Email not found please sign up" })
+  // }
+  const user = await userModel.findOne({ email });
 
-    // const decodedPassword = bcrypt.compareSync(password  , 8)
+  if (!user) {
+    res.status(404).json({ message: "Invalid login credentials" });
+  }
+  const passwordMatch = bcrypt.compareSync(password, user.password);
+  if (!passwordMatch) {
+    return res.status(400).json({ message: "Invalid login credentials" });
+  }
+  const token = jwt.sign(
+    { _id: user._id, userName: user.userName, email },
+    process.env.TOKEN_SECRET
+  );
 
-  res.status(201).json({ message: "seccess", user , token });
+  // const decodedPassword = bcrypt.compareSync(password  , 8)
+
+  res.status(201).json({ message: "seccess", user, token });
 };
 //*------------
 //*3--update user
 //*------------
 const updateUser = async (req, res, next) => {
   const { _id } = req.params;
-  const {userName,email,age,phoneNumber,address,gender} = req.body
-  
-  const user = await userModel.findByIdAndUpdate(_id, {userName,email,age,phoneNumber,address,gender},{ new: true });
+  const { userName, email, age, phoneNumber, address, gender } = req.body;
+
+  const user = await userModel.findByIdAndUpdate(
+    _id,
+    { userName, email, age, phoneNumber, address, gender },
+    { new: true }
+  );
 
   if (!user) {
     return res.status(404).json({ message: "user not found" });
   }
 
-    return res.status(201).json({ message: "user updated seccessfully", user });
+  return res.status(201).json({ message: "user updated successfully", user });
 };
 
 //*------------
@@ -102,8 +101,8 @@ const deleteUser = async (req, res, next) => {
     return res.status(404).json({ message: "user not found" });
   }
 
-    user.isDeleted = true
-    return res.status(201).json({ message: "user deleted seccessfully" });
+  user.isDeleted = true;
+  return res.status(201).json({ message: "user deleted successfully" });
 };
 
 //*------------
@@ -117,47 +116,37 @@ const forgetPassword = async (req, res, next) => {
     return res.status(404).json({ message: "user not found" });
   }
 
-    return res.status(201).json({ message: "user deleted seccessfully" });
+  return res.status(201).json({ message: "user deleted successfully" });
 };
-
-
 
 // auth middleware
-const handleAuth = async(req , res ,next)=>{
-const token = req?.headers?.authorization?.split(' ')[1]
+const handleAuth = async (req, res, next) => {
+  const token = req?.headers?.authorization?.split(" ")[1];
 
-try {
-  if(!token){
-    return res.status(403).json({message:'please sign up'})
+  try {
+    if (!token) {
+      return res.status(403).json({ message: "please sign up" });
+    }
+
+    const decodedToken = jwt.verify(token, process.env.TOKEN_SECRET);
+
+    if (!decodedToken || !decodedToken._id) {
+      return res.status(401).json({ message: "Invalid token" });
+    }
+
+    const isUserExist = await userModel.findById(decodedToken._id);
+    if (!isUserExist) {
+      return res.status(404).json({ message: "Invalid login credentials" });
+    }
+    req.user = decodedToken;
+  } catch (error) {
+    return res.status(401).json({ error: error.message });
   }
 
-const decodedToken = jwt.verify(token , process.env.TOKEN_SECRET)
-
-  if (!decodedToken || !decodedToken._id) {
-    return res.status(401).json({ message: "Invalid token" });
-  }
-  
-const isUserExist = await userModel.findById(decodedToken._id);
-if (!isUserExist) {
-  return res.status(404).json({ message: "Invalid login credentials" });
-}    
-req.user =decodedToken
-} catch (error) {
-  return res.status(401).json({error:error.message})
-}
-
-next()
-}
-
-
-export {
-  signUp,
-  logIn,
-  updateUser,
-  deleteUser,
-  forgetPassword,
-  handleAuth
+  next();
 };
+
+export { signUp, logIn, updateUser, deleteUser, forgetPassword, handleAuth };
 /*
 1-sign up
 token

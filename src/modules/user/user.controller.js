@@ -6,23 +6,24 @@ import jwt from "jsonwebtoken";
 //*1--addUser
 //*------------
 const addUser = async (req, res, next) => {
+  const { userName, email, password, age, phoneNumber, address, gender } =
+    req.body;
 
-  const {
-  userName,
-  email,
-  password,
-  age,
-  phoneNumber,
-  address,
-  gender} = req.body
-
-  const isEmailExist = await userModel.findOne({email});
+  const isEmailExist = await userModel.findOne({ email });
   if (isEmailExist) {
-    return res.status(404).json({ message: "Email already exist" })
+    return res.status(404).json({ message: "Email already exist" });
   }
-  const newUser = new userModel({  userName,email,password,age,phoneNumber,address,gender });
-  await newUser.save()
-  res.status(201).json({ message: "success", newUser, });
+  const newUser = new userModel({
+    userName,
+    email,
+    password,
+    age,
+    phoneNumber,
+    address,
+    gender,
+  });
+  await newUser.save();
+  res.status(201).json({ message: "success", newUser });
 };
 
 //*------------
@@ -35,7 +36,7 @@ const updateUser = async (req, res, next) => {
   if (!user) {
     return res.status(404).json({ message: "user not found" });
   }
-  res.status(201).json({ message: "user updated seccessfully", user });
+  res.status(201).json({ message: "user updated successfully", user });
 };
 
 //*------------
@@ -49,8 +50,8 @@ const deleteAccount = async (req, res, next) => {
     return res.status(404).json({ message: "Account not found" });
   }
 
-    user.isDeleted = true
-    return res.status(201).json({ message: "Account deleted seccessfully" });
+  user.isDeleted = true;
+  return res.status(201).json({ message: "Account deleted successfully" });
 };
 
 //*------------
@@ -60,13 +61,7 @@ const getAllUsers = async (req, res, next) => {
   const { _id } = req.params;
 
   const allUsers = await userModel.find();
-  return res.status(201).json({ message: "success" , allUsers });
+  return res.status(201).json({ message: "success", allUsers });
 };
 
-
-export {
-  addUser,
-  updateUser,
-  deleteAccount,
-  getAllUsers,
-};
+export { addUser, updateUser, deleteAccount, getAllUsers };

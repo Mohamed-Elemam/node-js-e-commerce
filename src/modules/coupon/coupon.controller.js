@@ -1,21 +1,25 @@
-import { couponModel } from './../../../database/models/coupon.model.js';
+import { couponModel } from "./../../../database/models/coupon.model.js";
 
 //*------------
 //*1--add coupon
 //*------------
-const addcoupon= async (req, res, next) => {
-  const { code ,discount ,expiresAt } = req.body;
-  let expiresAtUTC = new Date(expiresAt).toUTCString()
-  
+const addcoupon = async (req, res, next) => {
+  const { code, discount, expiresAt } = req.body;
+  let expiresAtUTC = new Date(expiresAt).toUTCString();
+
   const isExist = await couponModel.findOne({ code });
   if (isExist) {
-    return res.status(400).json({ message: "coupon already exist" })
+    return res.status(400).json({ message: "coupon already exist" });
   }
 
-  const newcoupon = new couponModel({ code ,discount ,expiresAt:expiresAtUTC});
+  const newcoupon = new couponModel({
+    code,
+    discount,
+    expiresAt: expiresAtUTC,
+  });
   await newcoupon.save();
 
-  res.status(201).json({ message: "coupon add seccessfully", newcoupon });
+  res.status(201).json({ message: "coupon add successfully", newcoupon });
 };
 
 //*------------
@@ -23,14 +27,20 @@ const addcoupon= async (req, res, next) => {
 //*------------
 const updatecoupon = async (req, res, next) => {
   const { _id } = req.params;
-  const { code ,discount ,expiresAt } = req.body;
+  const { code, discount, expiresAt } = req.body;
 
-  const coupon = await couponModel.findByIdAndUpdate(_id, { code ,discount ,expiresAt }, { new: true });
+  const coupon = await couponModel.findByIdAndUpdate(
+    _id,
+    { code, discount, expiresAt },
+    { new: true }
+  );
   if (!coupon) {
     return res.status(400).json({ message: "coupon not found" });
   }
   if (coupon) {
-    return res.status(201).json({ message: "coupon updated seccessfully", coupon });
+    return res
+      .status(201)
+      .json({ message: "coupon updated successfully", coupon });
   }
 };
 
@@ -44,17 +54,15 @@ const deletecoupon = async (req, res, next) => {
   if (!coupon) {
     return res.status(400).json({ message: "coupon not found" });
   }
-  res.status(201).json({ message: "coupon deleted seccessfully" });
+  res.status(201).json({ message: "coupon deleted successfully" });
 };
 
 //*------------
 //*4--get all coupon
 //*------------
 const getAllcoupons = async (req, res, next) => {
-
-  const coupons = await couponModel.find()
-  res.status(201).json({ message: 'success', coupons });
-
+  const coupons = await couponModel.find();
+  res.status(201).json({ message: "success", coupons });
 };
 
 //*------------
@@ -63,19 +71,8 @@ const getAllcoupons = async (req, res, next) => {
 const getcouponById = async (req, res, next) => {
   const { _id } = req.params;
 
-  const coupon = await couponModel.findById(_id)
-  res.status(201).json({ message: 'success', coupon });
-
+  const coupon = await couponModel.findById(_id);
+  res.status(201).json({ message: "success", coupon });
 };
 
-export {
-  addcoupon,
-  updatecoupon,
-  deletecoupon,
-  getAllcoupons,
-  getcouponById
-};
-
-
-
-
+export { addcoupon, updatecoupon, deletecoupon, getAllcoupons, getcouponById };
