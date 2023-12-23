@@ -4,9 +4,9 @@ import express from "express";
 import cors from "cors";
 import { dbConnection } from "./database/dbConnection.js";
 import { allRouters } from "./src/modules/index.routers.js";
-app.use(cors());
 
 const app = express();
+app.use(cors());
 const port = process.env.PORT;
 app.use(express.json());
 
