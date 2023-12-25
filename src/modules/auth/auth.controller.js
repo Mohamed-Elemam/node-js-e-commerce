@@ -24,7 +24,11 @@ const signUp = async (req, res, next) => {
   });
 
   //*token
-  // const token = jwt.sign(newUser , process.env.TOKEN_SECRET)
+  console.log(process.env.TOKEN_SECRET);
+  const token = jwt.sign(
+    { _id: newUser._id, userName: newUser.userName, email: newUser.email },
+    process.env.TOKEN_SECRET
+  );
   // const token = jwt.sign(newUser , '__Ecomm')
 
   //*confirm mail
@@ -35,7 +39,7 @@ const signUp = async (req, res, next) => {
 
   await newUser.save();
 
-  res.status(201).json({ message: "seccess", newUser });
+  res.status(201).json({ message: "success", newUser, token });
 };
 
 //*------------
@@ -68,7 +72,7 @@ const logIn = async (req, res, next) => {
 
   // const decodedPassword = bcrypt.compareSync(password  , 8)
 
-  res.status(201).json({ message: "seccess", user, token });
+  res.status(201).json({ message: "success", user, token });
 };
 //*------------
 //*3--update user

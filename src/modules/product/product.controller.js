@@ -14,7 +14,8 @@ const addproduct = async (req, res, next) => {
   const { categoryId, subCategoryId, brandId } = req.query;
   const {
     title,
-    desc,
+    overview,
+    highlights,
     colors,
     sizes,
     price,
@@ -59,11 +60,12 @@ const addproduct = async (req, res, next) => {
   if (!brand) {
     res.status(400).json({ message: "brand doesnt exist" });
   }
-  const slug = slugify(toString(title));
+  const slug = slugify(title, "-");
   req.body.slug = slug;
   const newproduct = await productModel.create({
     title,
-    desc,
+    overview,
+    highlights,
     slug,
     colors,
     sizes,
@@ -89,8 +91,16 @@ const addproduct = async (req, res, next) => {
 //*------------
 const updateproduct = async (req, res, next) => {
   const { _id } = req.params;
-  const { title, desc, price, appliedDiscount, colors, sizes, stock } =
-    req.body;
+  const {
+    title,
+    overview,
+    highlights,
+    price,
+    appliedDiscount,
+    colors,
+    sizes,
+    stock,
+  } = req.body;
 
   const product = await productModel.findById(_id);
   !product && res.status(400).json({ message: "product not found" });
@@ -116,7 +126,9 @@ const updateproduct = async (req, res, next) => {
     product.title = title;
     product.slug = slugify(title, "-");
   }
-  if (desc) product.desc = desc;
+
+  if (overview) product.overview = overview;
+  if (highlights) product.highlights = highlights;
   if (colors) product.colors = colors;
   if (sizes) product.sizes = sizes;
   if (stock) product.stock = stock;
@@ -157,4 +169,25 @@ const getAllProducts = async (req, res, next) => {
   res.status(201).json({ Products });
 };
 
-export { addproduct, updateproduct, deleteproduct, getAllProducts };
+const getProductBySubCategory = async (req, res) => {
+  const subCategoryId = req.params.subCategoryId;
+  try {
+    const subCategory = await subCategoriesModel.findOne({
+      name: subCategoryId,
+    });
+    const products = await productModel.find({
+      subCategoryId: subCategory.id,
+    });
+    res.json({ message: "success", products });
+  } catch (error) {
+    res.json({ message: "failed", error });
+  }
+};
+
+export {
+  addproduct,
+  updateproduct,
+  deleteproduct,
+  getAllProducts,
+  getProductBySubCategory,
+};

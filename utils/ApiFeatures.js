@@ -5,18 +5,18 @@ export class ApiFeatures {
   }
 
   //filter
-  filter(){
-  const queryInstance = { ...req.query }
-  const execuldeKeysArr = ['page',  'sort', 'fields', 'keyword']
-  execuldeKeysArr.forEach((key) => delete queryInstance[key])
-  const filterObj = JSON.parse(
-    JSON.stringify(queryInstance).replace(
-      /gt|gte|lt|lte|in|nin|eq|neq|regex/g,
-      (match) => `$${match}`,
-    )
-  )
-  this.mongooseQuery.find(filterObj)
-  return this
+  filter() {
+    const queryInstance = { ...req.query };
+    const execuldeKeysArr = ["page", "sort", "fields", "keyword"];
+    execuldeKeysArr.forEach((key) => delete queryInstance[key]);
+    const filterObj = JSON.parse(
+      JSON.stringify(queryInstance).replace(
+        /gt|gte|lt|lte|in|nin|eq|neq|regex/g,
+        (match) => `$${match}`
+      )
+    );
+    this.mongooseQuery.find(filterObj);
+    return this;
   }
 
   //pagination
@@ -48,18 +48,17 @@ export class ApiFeatures {
         ],
       });
     }
-    return this
+    return this;
   }
 
   // fields
-  select(){
-    
-  if(this.queryString.fields){
-    let fileds = this.queryString.fields.split(',').join(' ')
-    console.log(fileds)
-    this.mongooseQuery.select(fileds)
-  } 
+  select() {
+    if (this.queryString.fields) {
+      let fields = this.queryString.fields.split(",").join(" ");
+      console.log(fields);
+      this.mongooseQuery.select(fields);
+    }
 
-return this
+    return this;
   }
 }

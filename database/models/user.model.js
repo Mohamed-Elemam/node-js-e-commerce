@@ -1,7 +1,6 @@
 import { Schema, SchemaTypes, model } from "mongoose";
 import bcrypt from "bcrypt";
 
-
 const userSchema = new Schema(
   {
     userName: {
@@ -20,29 +19,27 @@ const userSchema = new Schema(
 
     image: [
       {
-        public_id: { 
+        public_id: {
           type: String,
-          // required: ture 
         },
         secure_url: {
-        type: String,
-          // required: ture
-         },
+          type: String,
+        },
       },
     ],
     role: {
       type: String,
       default: "user",
-      enum: [ "admin", "user"],
+      enum: ["admin", "user"],
     },
     phoneNumber: {
       type: String,
-      required: true,
+      // required: true,
     },
     address: [
       {
         type: String,
-        required: true,
+        // required: true,
       },
     ],
     status: {
@@ -60,17 +57,14 @@ const userSchema = new Schema(
     forgetCode: String,
     isConfirmed: Boolean,
     isDeleted: Boolean,
-    wishlist:[{type:SchemaTypes.ObjectId , ref:'product'}]
-
+    wishlist: [{ type: SchemaTypes.ObjectId, ref: "product" }],
   },
   { timestamps: true }
 );
 
-
-userSchema.pre('save' , function(){
-  console.log(process.env.SALT_ROUNDS)
-   const hashedPassword = bcrypt.hashSync(this.password ,8)
-   this.password = hashedPassword
-})
+userSchema.pre("save", function () {
+  const hashedPassword = bcrypt.hashSync(this.password, 8);
+  this.password = hashedPassword;
+});
 
 export const userModel = model("user", userSchema);
