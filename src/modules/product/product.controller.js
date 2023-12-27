@@ -169,6 +169,22 @@ const getAllProducts = async (req, res, next) => {
   res.status(201).json({ Products });
 };
 
+//*------------
+//*5--get product by id
+//*------------
+const getProductById = async (req, res, next) => {
+  const { _id } = req.params;
+
+  const Product = await productModel.findById(_id);
+  if (!Product) {
+    return res.status(404).json({ message: "No product found" });
+  }
+  res.status(201).json({ Product });
+};
+
+//*------------
+//*6--get product by subcategory
+//*------------
 const getProductBySubCategory = async (req, res) => {
   const subCategoryId = req.params.subCategoryId;
   try {
@@ -188,6 +204,7 @@ export {
   addproduct,
   updateproduct,
   deleteproduct,
+  getProductById,
   getAllProducts,
   getProductBySubCategory,
 };

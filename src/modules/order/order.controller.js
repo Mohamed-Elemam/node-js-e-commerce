@@ -51,15 +51,14 @@ const checkoutOrder = async (req, res, next) => {
   let totalPrice = cart.totalpriceAfterDiscount
     ? cart.totalpriceAfterDiscount
     : cart.totalprice;
-  res.json(cart);
   let session = await stripe.checkout.sessions.create({
     line_items: [
       {
         price_data: {
           currency: "egp",
-          unit_amount: totalPrice,
+          unit_amount: totalPrice * 100,
           product_data: {
-            name: req.user.name,
+            name: req.user.userName,
           },
         },
         quantity: 1,
@@ -71,7 +70,7 @@ const checkoutOrder = async (req, res, next) => {
     customer_email: req.user.email,
     client_reference_id: req.params.id,
   });
-  res.json({ message: "success", session });
+  res.json({ message: "success", url: session.url });
 };
 
 //*------------

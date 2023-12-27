@@ -5,18 +5,18 @@ import { errorHandling } from "../../../utils/errorHandling.js";
 import { handleAuth } from "../auth/auth.controller.js";
 
 router.post(
-  "cashOrder/:id",
+  "/cashOrder/:id",
   handleAuth,
   errorHandling(orderController.createCashOrder)
 );
 router.post(
-  "checkOut/:id",
+  "/checkout/:cartId",
   handleAuth,
   errorHandling(orderController.checkoutOrder)
 );
 
 router.get("/", handleAuth, errorHandling(orderController.getUserOrders));
 
-// router.get("/",handleAuth,errorHandling(ordertController.getAllUserordert))
+// router.get("/",handleAuth,errorHandling(orderController.getAllUserorder))
 
 export default router;

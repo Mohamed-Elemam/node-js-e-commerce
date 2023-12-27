@@ -22,6 +22,7 @@ productRouter
 productRouter
   .route("/:_id")
   .put(errorHandling(productControl.updateproduct))
-  .delete(errorHandling(productControl.deleteproduct));
+  .delete(errorHandling(productControl.deleteproduct))
+  .get(errorHandling(productControl.getProductById));
 
 export default productRouter;

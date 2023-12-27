@@ -1,5 +1,5 @@
-import categoyRouter from "./categories/category.routes.js";
-import SubCategoyRouter from "./subCategory/subCategory.routes.js";
+import categoryRouter from "./categories/category.routes.js";
+import SubcategoryRouter from "./subCategory/subCategory.routes.js";
 import brandRouter from "./brand/brand.routes.js";
 import productRouter from "./product/product.routes.js";
 import authRouter from "./auth/auth.routes.js";
@@ -11,8 +11,8 @@ import cartRouter from "./cart/cart.routes.js";
 import orderRouter from "./order/order.routes.js";
 
 export function allRouters(app) {
-  app.use("/api/v1/category", categoyRouter);
-  app.use("/api/v1/subCategory", SubCategoyRouter);
+  app.use("/api/v1/category", categoryRouter);
+  app.use("/api/v1/subCategory", SubcategoryRouter);
   app.use("/api/v1/brand", brandRouter);
   app.use("/api/v1/product", productRouter);
   app.use("/api/v1/auth", authRouter);
