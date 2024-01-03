@@ -105,9 +105,11 @@ const updateProductQuantity = async (req, res, next) => {
 //*------------
 //*4-- logged User Cart
 //*------------
-const loggedUserCart = async (req, res, next) => {
+const loggedUserCart = async (req, res) => {
+  const { _id } = req.params;
+
   const cart = await cartModel
-    .findOne({ userId: req.user._id })
+    .findOne({ userId: _id })
     .populate("cartItems.productId");
   res.status(201).json({ message: "success", cart });
 };
@@ -115,7 +117,7 @@ const loggedUserCart = async (req, res, next) => {
 //*------------
 //*5-- apply coupon
 //*------------
-const applyCoupon = async (req, res, next) => {
+const applyCoupon = async (req, res) => {
   const { couponCode } = req.params;
   const coupon = await couponModel.findOne({
     code: couponCode,

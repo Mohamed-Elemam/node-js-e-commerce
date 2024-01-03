@@ -6,6 +6,7 @@ import { subCategoriesModel } from "../../../database/models/subCategories.model
 import cloudnairy from "../../../utils/cloudinaryConfig.js";
 import { nanoid } from "nanoid";
 import { ApiFeatures } from "../../../utils/ApiFeatures.js";
+import mongoose from "mongoose";
 
 //*------------
 //*1--add prodduct
@@ -162,26 +163,34 @@ const getAllProducts = async (req, res, next) => {
     .search()
     .select();
 
-  const Products = await apiFeatures.mongooseQuery;
-  if (!Products.length) {
+  const products = await apiFeatures.mongooseQuery;
+  if (!products.length) {
     return res.status(404).json({ message: "No products  found" });
   }
-  res.status(201).json({ Products });
+  res.status(201).json({ products });
 };
 
 //*------------
 //*5--get product by id
 //*------------
+
 const getProductById = async (req, res, next) => {
   const { _id } = req.params;
 
-  const Product = await productModel.findById(_id);
-  if (!Product) {
-    return res.status(404).json({ message: "No product found" });
+  if (!mongoose.Types.ObjectId.isValid(_id)) {
+    return res.status(400).json({ message: "No product found" });
   }
-  res.status(201).json({ Product });
-};
 
+  try {
+    const product = await productModel.findById(_id);
+    if (!product) {
+      return res.status(404).json({ message: "No product found" });
+    }
+    return res.status(200).json({ product });
+  } catch (error) {
+    res.status(400).json({ error });
+  }
+};
 //*------------
 //*6--get product by subcategory
 //*------------
