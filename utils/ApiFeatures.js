@@ -55,7 +55,6 @@ export class ApiFeatures {
   select() {
     if (this.queryString.fields) {
       let fields = this.queryString.fields.split(",").join(" ");
-      console.log(fields);
       this.mongooseQuery.select(fields);
     }
 

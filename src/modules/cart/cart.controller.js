@@ -2,7 +2,7 @@ import { cartModel } from "./../../../database/models/cart.model.js";
 import { productModel } from "../../../database/models/product.model.js";
 import { couponModel } from "../../../database/models/coupon.model.js";
 
-function calcTotalPrice(cart) {
+export function calcTotalPrice(cart) {
   let totalPrice = 0;
   cart.cartItems.forEach((ele) => {
     totalPrice += ele.quantity * ele.price;
@@ -111,6 +111,9 @@ const loggedUserCart = async (req, res) => {
   const cart = await cartModel
     .findOne({ userId: _id })
     .populate("cartItems.productId");
+  if (!cart) {
+    return res.status(400).json({ message: "cart is not found" });
+  }
   res.status(201).json({ message: "success", cart });
 };
 

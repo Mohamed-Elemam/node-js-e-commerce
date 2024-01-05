@@ -61,7 +61,7 @@ const checkoutOrder = async (req, res) => {
       line_items: [
         {
           price_data: {
-            currency: "egp",
+            currency: "EGP",
             unit_amount: totalPrice * 100,
             product_data: {
               name: req.user.userName,
@@ -71,15 +71,11 @@ const checkoutOrder = async (req, res) => {
         },
       ],
       mode: "payment",
-      success_url: "http://localhost:3000/api/v1/cart",
-      cancel_url: "http://localhost:5173/notfound",
+      success_url: "http://localhost:5173/cart",
+      cancel_url: "http://localhost:5173/cart",
       customer_email: req.user.email,
       client_reference_id: req.params.id,
     });
-
-    // Process successful payment
-    // Add logic to update or clear the cart in your database
-    await cartModel.findByIdAndUpdate(cartId, { products: [] }); // Assuming 'products' is the array holding cart items
 
     res.json({ message: "success", url: session.url });
   } catch (error) {
@@ -87,7 +83,10 @@ const checkoutOrder = async (req, res) => {
     res.status(500).json({ message: "Internal Server Error" });
   }
 };
-
+// const cart = await cartModel
+//   .findOneAndDelete({ userId: _id })
+//   .populate("cartItems.productId");xx
+// await cartModel.findByIdAndDelete(cartId);
 //*------------
 //*3 getUserOrders
 //*------------
@@ -100,28 +99,38 @@ const getUserOrders = async (req, res, next) => {
 
   res.status(201).json({ message: "success", orders });
 };
-console.log(process.env.STRIPE_WEBHOOK);
-const onlineWebhook = async (req, res, next) => {
-  const sig = request.headers["stripe-signature"].toString();
+
+const onlineWebhook = async (request, response) => {
+  const sig = request.headers["stripe-signature"];
 
   let event;
 
   try {
-    event = stripe.webhooks.constructEvent(
-      request.body,
-      sig,
-      process.env.STRIPE_WEBHOOK
-    );
+    event = stripe.webhooks.constructEvent(request.body, sig, endpointSecret);
   } catch (err) {
-    return response.status(400).send(`Webhook Error: ${err.message}`);
+    response.status(400).send(`Webhook Error: ${err.message}`);
+    return;
   }
 
-  if (event.type == "checkout.session.completed") {
-    const checkoutSessionCompleted = event.data.object;
-    console.log("create order here ........");
-  } else {
-    console.log(`Unhandled event type ${event.type}`);
+  // Handle the event
+  switch (event.type) {
+    case "checkout.session.async_payment_failed":
+      const checkoutSessionAsyncPaymentFailed = event.data.object;
+      break;
+    case "checkout.session.async_payment_succeeded":
+      const checkoutSessionAsyncPaymentSucceeded = event.data.object;
+      break;
+    case "checkout.session.completed":
+      const checkoutSessionCompleted = event.data.object;
+      break;
+    case "checkout.session.expired":
+      const checkoutSessionExpired = event.data.object;
+      break;
+    default:
+      console.log(`Unhandled event type ${event.type}`);
   }
+
+  response.send();
 };
 
 export { createCashOrder, getUserOrders, checkoutOrder, onlineWebhook };
