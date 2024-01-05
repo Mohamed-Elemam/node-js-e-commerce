@@ -83,6 +83,7 @@ const checkoutOrder = async (req, res) => {
     res.status(500).json({ message: "Internal Server Error" });
   }
 };
+
 // const cart = await cartModel
 //   .findOneAndDelete({ userId: _id })
 //   .populate("cartItems.productId");xx
