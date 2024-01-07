@@ -11,6 +11,11 @@ import cartRouter from "./cart/cart.routes.js";
 import orderRouter from "./order/order.routes.js";
 
 export function allRouters(app) {
+  app.use((err, req, res, next) => {
+    let error = err.message;
+    const statusCode = error.statusCode || 500;
+    res.status(statusCode).json({ error });
+  });
   app.use("/api/v1/category", categoryRouter);
   app.use("/api/v1/subCategory", SubcategoryRouter);
   app.use("/api/v1/brand", brandRouter);
@@ -24,12 +29,6 @@ export function allRouters(app) {
   app.use("/api/v1/order", orderRouter);
 
   app.get("/", (req, res) => res.send("Hello World!"));
-
-  app.use((err, req, res, next) => {
-    let error = err.message;
-    const statusCode = error.statusCode || 500;
-    res.status(statusCode).json({ error });
-  });
 
   app.all("*", (req, res, next) => {
     next(new Error("404 Not Found URL", { cause: 404 }));

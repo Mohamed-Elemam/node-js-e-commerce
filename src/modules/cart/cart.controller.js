@@ -1,6 +1,7 @@
 import { cartModel } from "./../../../database/models/cart.model.js";
 import { productModel } from "../../../database/models/product.model.js";
 import { couponModel } from "../../../database/models/coupon.model.js";
+import mongoose from "mongoose";
 
 export function calcTotalPrice(cart) {
   let totalPrice = 0;
@@ -50,27 +51,97 @@ const addToCart = async (req, res, next) => {
   await isCart.save();
   res.status(201).json({ message: "success", cart: isCart });
 };
+//*------------
+//*add to guest cart
+//*------------
+
+const addToCartGuest = async (req, res, next) => {
+  if (!req.session.cart) {
+    req.session.cart = { items: [] };
+  }
+  req.session.cart.items.push(req.body);
+  res
+    .status(201)
+    .json({ message: "Item added to guest cart", cart: req.session.cart });
+};
 
 //*------------
 //*2-- remove from cart
 //*------------
 
 const removeFromCart = async (req, res, next) => {
-  const { _id } = req.params;
-  let result = await cartModel.findOneAndUpdate(
-    { userId: req.user._id },
-    { $pull: { cartItems: { _id } } },
-    { new: true }
-  );
-  if (!result) {
-    return next(new Error("Product not found", 404));
+  const { productId } = req.params;
+
+  try {
+    const result = await cartModel.findOneAndUpdate(
+      { userId: req.user._id },
+      {
+        $pull: { cartItems: { productId } },
+      },
+      { new: true }
+    );
+
+    if (!result) {
+      return res.status(404).json({ message: "Product not found in the cart" });
+    }
+
+    if (result.discount) {
+      const discountAmount = (result.totalprice * result.discount) / 100;
+      result.totalpriceAfterDiscount = result.totalprice - discountAmount;
+    }
+    calcTotalPrice(result);
+
+    return res
+      .status(201)
+      .json({ message: "Item removed from the cart", cart: result });
+  } catch (error) {
+    return res.status(404).json({ message: "Product not found", error });
   }
-  calcTotalPrice(result);
-  if (result.discount) {
-    const discountAmount = (result.totalprice * result.discount) / 100;
-    result.totalpriceAfterDiscount = result.totalprice - discountAmount;
+};
+
+//*------------
+//*-- decrement product
+//*------------
+
+const decrementCart = async (req, res, next) => {
+  const { productId } = req.params;
+
+  try {
+    const cart = await cartModel.findOne({ userId: req.user._id });
+
+    if (!cart) {
+      return res.status(404).json({ message: "Cart not found" });
+    }
+
+    const itemIndex = cart.cartItems.findIndex(
+      (item) => item.productId.toString() === productId
+    );
+
+    if (itemIndex === -1) {
+      return res.status(404).json({ message: "Product not found in the cart" });
+    }
+
+    if (cart.cartItems[itemIndex].quantity > 1) {
+      cart.cartItems[itemIndex].quantity -= 1;
+    } else {
+      cart.cartItems.splice(itemIndex, 1);
+    }
+
+    calcTotalPrice(cart);
+
+    if (cart.discount) {
+      const discountAmount = (cart.totalprice * cart.discount) / 100;
+      cart.totalpriceAfterDiscount = cart.totalprice - discountAmount;
+    }
+
+    await cart.save();
+
+    return res
+      .status(200)
+      .json({ message: "Item decremented successfully", cart });
+  } catch (error) {
+    return res.status(500).json({ message: "Internal Server Error", error });
   }
-  res.status(201).json({ message: "success", cart: result });
 };
 
 //*------------
@@ -144,7 +215,9 @@ const applyCoupon = async (req, res) => {
 
 export {
   addToCart,
+  addToCartGuest,
   removeFromCart,
+  decrementCart,
   updateProductQuantity,
   loggedUserCart,
   applyCoupon,

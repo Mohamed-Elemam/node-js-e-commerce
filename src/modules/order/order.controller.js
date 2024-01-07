@@ -71,7 +71,7 @@ const checkoutOrder = async (req, res) => {
         },
       ],
       mode: "payment",
-      success_url: "http://localhost:5173/cart",
+      success_url: `http://localhost:3000/api/v1/order/success/${cartId}`,
       cancel_url: "http://localhost:5173/cart",
       customer_email: req.user.email,
       client_reference_id: req.params.id,
@@ -84,10 +84,7 @@ const checkoutOrder = async (req, res) => {
   }
 };
 
-// const cart = await cartModel
-//   .findOneAndDelete({ userId: _id })
-//   .populate("cartItems.productId");xx
-// await cartModel.findByIdAndDelete(cartId);
+
 //*------------
 //*3 getUserOrders
 //*------------
