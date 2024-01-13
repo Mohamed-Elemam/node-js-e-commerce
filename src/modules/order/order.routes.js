@@ -21,12 +21,8 @@ router.get("/", handleAuth, errorHandling(orderController.getUserOrders));
 router.get("/success/:cartId", async (req, res) => {
   const { cartId } = req.params;
   await cartModel.findByIdAndDelete(cartId);
-  // cart.cartItems = [];
-  // cart.totalprice = 0;
-  // cart.save();
-  res.redirect("http://localhost:5173/cart");
-});
 
-// router.get("/",handleAuth,errorHandling(orderController.getAllUserorder))
+  res.render("purchaseComplete", { redirectUrl: "http://localhost:5173/cart" });
+});
 
 export default router;
