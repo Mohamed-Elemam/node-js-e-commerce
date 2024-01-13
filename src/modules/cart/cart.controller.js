@@ -31,7 +31,9 @@ const addToCart = async (req, res, next) => {
     });
     calcTotalPrice(cart);
     await cart.save();
-    return res.status(201).json({ message: "success", cart });
+    return res
+      .status(201)
+      .json({ message: "success", cart, addProductId: req.body.productId });
   }
 
   let item = isCart.cartItems.find(
@@ -49,7 +51,11 @@ const addToCart = async (req, res, next) => {
     isCart.totalpriceAfterDiscount = isCart.totalprice - discountAmount;
   }
   await isCart.save();
-  res.status(201).json({ message: "success", cart: isCart });
+  res.status(201).json({
+    message: "success",
+    cart: isCart,
+    addProductId: req.body.productId,
+  });
 };
 //*------------
 //*add to guest cart
@@ -90,10 +96,13 @@ const removeFromCart = async (req, res, next) => {
       result.totalpriceAfterDiscount = result.totalprice - discountAmount;
     }
     calcTotalPrice(result);
+    await result.save();
 
-    return res
-      .status(201)
-      .json({ message: "Item removed from the cart", cart: result });
+    return res.status(201).json({
+      message: "Item removed from the cart",
+      cart: result,
+      removedProduct: productId,
+    });
   } catch (error) {
     return res.status(404).json({ message: "Product not found", error });
   }
@@ -103,7 +112,7 @@ const removeFromCart = async (req, res, next) => {
 //*-- decrement product
 //*------------
 
-const decrementCart = async (req, res, next) => {
+const decrementCart = async (req, res) => {
   const { productId } = req.params;
 
   try {
@@ -136,9 +145,11 @@ const decrementCart = async (req, res, next) => {
 
     await cart.save();
 
-    return res
-      .status(200)
-      .json({ message: "Item decremented successfully", cart });
+    return res.status(200).json({
+      message: "Item decremented successfully",
+      cart,
+      decrementedProduct: productId,
+    });
   } catch (error) {
     return res.status(500).json({ message: "Internal Server Error", error });
   }
@@ -183,7 +194,9 @@ const loggedUserCart = async (req, res) => {
     .findOne({ userId: _id })
     .populate("cartItems.productId");
   if (!cart) {
-    return res.status(400).json({ message: "cart is not found" });
+    cart = new cartModel({ userId: _id, cartItems: [], totalprice: 0 });
+    await cart.save();
+    return res.status(201).json({ message: "New cart created", cart });
   }
   res.status(201).json({ message: "success", cart });
 };

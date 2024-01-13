@@ -8,9 +8,12 @@ import { onlineWebhook } from "./src/modules/order/order.controller.js";
 
 const app = express();
 const port = process.env.PORT;
+app.set("view engine", "ejs");
+
 app.post("/webhook", express.raw({ type: "application/json" }), onlineWebhook);
 app.use(cors());
 app.use(express.json());
+
 dbConnection();
 allRouters(app);
 

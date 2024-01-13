@@ -20,6 +20,10 @@ productRouter
   .get(errorHandling(productControl.getProductBySubCategory));
 
 productRouter
+  .route("/title/:title")
+  .get(errorHandling(productControl.getProductByTitle));
+
+productRouter
   .route("/:_id")
   .put(errorHandling(productControl.updateproduct))
   .delete(errorHandling(productControl.deleteproduct))

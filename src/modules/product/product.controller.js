@@ -192,7 +192,7 @@ const getProductById = async (req, res, next) => {
   }
 };
 //*------------
-//*6--get product by subcategory
+//*get product by subcategory
 //*------------
 const getProductBySubCategory = async (req, res) => {
   const subCategoryId = req.params.subCategoryId;
@@ -208,6 +208,26 @@ const getProductBySubCategory = async (req, res) => {
     res.json({ message: "failed", error });
   }
 };
+//*------------
+//*get product by title
+//*------------
+const getProductByTitle = async (req, res) => {
+  const { title } = req.params;
+  const trimmedTitle = title.trim();
+
+  try {
+    const product = await productModel.find({
+      title: new RegExp(trimmedTitle, "i"),
+    });
+
+    if (!product) {
+      return res.status(404).json({ message: "No product found" });
+    }
+    return res.status(200).json({ product });
+  } catch (error) {
+    res.status(500).json({ message: "Server Error", error });
+  }
+};
 
 export {
   addproduct,
@@ -216,4 +236,5 @@ export {
   getProductById,
   getAllProducts,
   getProductBySubCategory,
+  getProductByTitle,
 };
