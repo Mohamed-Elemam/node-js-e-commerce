@@ -1,7 +1,6 @@
 import { cartModel } from "./../../../database/models/cart.model.js";
 import { productModel } from "../../../database/models/product.model.js";
 import { couponModel } from "../../../database/models/coupon.model.js";
-import mongoose from "mongoose";
 
 export function calcTotalPrice(cart) {
   let totalPrice = 0;
@@ -189,16 +188,19 @@ const updateProductQuantity = async (req, res, next) => {
 //*------------
 const loggedUserCart = async (req, res) => {
   const { _id } = req.params;
-
-  const cart = await cartModel
-    .findOne({ userId: _id })
-    .populate("cartItems.productId");
-  if (!cart) {
-    cart = new cartModel({ userId: _id, cartItems: [], totalprice: 0 });
-    await cart.save();
-    return res.status(201).json({ message: "New cart created", cart });
+  try {
+    let cart = await cartModel
+      .findOne({ userId: _id })
+      .populate("cartItems.productId");
+    if (!cart) {
+      cart = new cartModel({ userId: _id, cartItems: [], totalprice: 0 });
+      await cart.save();
+      return res.status(201).json({ message: "New cart created", cart });
+    }
+    res.status(201).json({ message: "success", cart });
+  } catch (error) {
+    return res.status(400).json({ message: "cart not found", error });
   }
-  res.status(201).json({ message: "success", cart });
 };
 
 //*------------

@@ -20,9 +20,8 @@ router.get("/", handleAuth, errorHandling(orderController.getUserOrders));
 //*************************** */
 router.get("/success/:cartId", async (req, res) => {
   const { cartId } = req.params;
-  await cartModel.findByIdAndDelete(cartId);
+  await cartModel.findByIdAndUpdate(cartId, { cartItems: [], totalprice: 0 });
 
   res.render("purchaseComplete", { redirectUrl: "http://localhost:5173/cart" });
 });
-
 export default router;
