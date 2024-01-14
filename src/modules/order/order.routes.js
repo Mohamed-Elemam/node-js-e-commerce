@@ -22,6 +22,8 @@ router.get("/success/:cartId", async (req, res) => {
   const { cartId } = req.params;
   await cartModel.findByIdAndUpdate(cartId, { cartItems: [], totalprice: 0 });
 
-  res.render("purchaseComplete", { redirectUrl: "http://localhost:5173/cart" });
+  res.render("purchaseComplete", {
+    redirectUrl: `${process.env.LIVE_FRONTEND_CART_LINK}`,
+  });
 });
 export default router;

@@ -71,8 +71,8 @@ const checkoutOrder = async (req, res) => {
         },
       ],
       mode: "payment",
-      success_url: `http://localhost:3000/api/v1/order/success/${cartId}`,
-      cancel_url: "http://localhost:5173/cart",
+      success_url: `${process.env.LIVE_BACKEND_LINK}/api/v1/order/success/${cartId}`,
+      cancel_url: `${process.env.LIVE_FRONTEND_CART_LINK}`,
       customer_email: req.user.email,
       client_reference_id: req.params.id,
     });
@@ -83,7 +83,6 @@ const checkoutOrder = async (req, res) => {
     res.status(500).json({ message: "Internal Server Error" });
   }
 };
-
 
 //*------------
 //*3 getUserOrders
