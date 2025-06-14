@@ -19,11 +19,16 @@ router.post(
 router.get("/", handleAuth, errorHandling(orderController.getUserOrders));
 //*************************** */
 router.get("/success/:cartId", async (req, res) => {
-  const { cartId } = req.params;
-  await cartModel.findByIdAndUpdate(cartId, { cartItems: [], totalprice: 0 });
+  try {
+    const { cartId } = req.params;
+    await cartModel.findByIdAndUpdate(cartId, { cartItems: [], totalprice: 0 });
 
-  res.render("purchaseComplete", {
-    redirectUrl: `${process.env.LIVE_FRONTEND_CART_LINK}`,
-  });
+    res.render("purchaseComplete", {
+      redirectUrl: `${process.env.LIVE_FRONTEND_CART_LINK}`,
+    });
+  } catch (error) {
+    console.error("Error in /success/:cartId route:", error);
+    res.status(500).send("Internal Server Error: " + error.message);
+  }
 });
 export default router;
